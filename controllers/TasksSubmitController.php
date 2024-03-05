@@ -1,6 +1,6 @@
 <?php
 
-namespace Gabela\Controller\Tasks;
+namespace Gabela\Tasks\Controller;
 
 use Gabela\Model\Task;
 use Monolog\Logger;

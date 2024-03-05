@@ -1,24 +1,28 @@
 <?php
 
-namespace Gabela\Controller\Tasks;
+namespace Gabela\Tasks\Controller;
 
-use Gabela\Model\Task;
+use Gabela\Core\ClassManager;
+use Gabela\Tasks\Model\Task;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 class TasksCreateSubmitController
 {
     private $logger;
+    private $classManager;
 
-    public function __construct($logger = null)
+    public function __construct($logger = null,)
     {
         $this->logger = new Logger('create-task-controller');
         $this->logger->pushHandler(new StreamHandler('var/System.log', Logger::DEBUG));
+        $this->classManager = new ClassManager();
     }
 
     public function submit()
     {
-        $task = new Task();
+        /** @var Task $task */
+        $task = $this->classManager->createInstance(Task::class);
         // Check if the user is logged in
         if (!isset($_SESSION['user_id'])) {
             redirect("/tasks");

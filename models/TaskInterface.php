@@ -1,6 +1,6 @@
 <?php
 
-namespace Gabela\Model;
+namespace Gabela\Tasks\Model;
 
 interface TaskInterface
 {

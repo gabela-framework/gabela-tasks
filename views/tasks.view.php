@@ -23,17 +23,17 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 /** @var User $users */
-$users = $classManager->createInstance(User::class);
+// $users = $classManager->createInstance(User::class);
 
-$config = getIncluded(WEB_CONFIGS);
+// $config = getIncluded(WEB_CONFIGS);
 
-if (isset($config['weather']['apikey']) && is_array($config['weather']['apikey'])) {
-    $apiKey = $config['weather']['apikey'][0];
-} else {
-    $apiKey = $config['weather']['apikey'];
-}
+// if (isset($config['weather']['apikey']) && is_array($config['weather']['apikey'])) {
+//     $apiKey = $config['weather']['apikey'][0];
+// } else {
+//     $apiKey = $config['weather']['apikey'];
+// }
 
-$city = $users->getWeatherCity();
+// $city = $users->getWeatherCity();
 
 /** @var Task $taskClass */
 $taskClass = $classManager->createInstance(Task::class);
@@ -281,7 +281,7 @@ $taskClass = $classManager->createInstance(Task::class);
                     </table>
                 <?php
                 } // End of else block
-                printValue('<a  href=" ' . BASE_URL . User::isAdmin() . 'tasks-create" class="btn btn-primary">Add Task</a>');
+                printValue('<a  href=" ' . BASE_URL . 'tasks-create" class="btn btn-primary">Add Task</a>');
                 ?>
 
                 <div class="map">

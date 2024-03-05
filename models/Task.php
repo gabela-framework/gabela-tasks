@@ -7,7 +7,7 @@
  * @copyright Copyright © 2023 VMP By Maneza
  */
 
-namespace Gabela\Model;
+namespace Gabela\Tasks\Model;
 
 use mysqli;
 use Gabela\Core\Database;

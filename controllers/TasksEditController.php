@@ -1,6 +1,6 @@
 <?php
 
-namespace Gabela\Controller\Tasks;
+namespace Gabela\Tasks\Controller;
 
 use Gabela\Core\AbstractController;
 

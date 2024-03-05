@@ -7,10 +7,10 @@
  * @copyright Copyright © 2023 VMP By Maneza
  */
 
-require __DIR__ . '/../../models/User.php';
-require __DIR__ . '/../../models/Task.php';
-require __DIR__ . '/../../helper/weather.php';
-
+ getRequired(USER_MODEL);
+ getRequired(TASKS_MODEL);
+ getRequired(WEATHER_API);
+ 
 use Gabela\Model\Task;
 use Gabela\Model\User;
 
@@ -192,4 +192,4 @@ foreach ($userNames as $userName) {
 
     <!-- content close -->
 
-    <?php require __DIR__ . '/../../views/partials/footer.php';?>
+    <?php getRequired(FOOTER_PARTIAL);?>
