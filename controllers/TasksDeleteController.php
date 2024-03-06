@@ -2,7 +2,9 @@
 
 namespace Gabela\Tasks\Controller;
 
-use Gabela\Model\Task;
+getIncluded("vendor/gabela/gabela-tasks/models/Task.php");
+
+use Gabela\Tasks\Model\Task;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 

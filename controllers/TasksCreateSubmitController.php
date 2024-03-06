@@ -2,6 +2,8 @@
 
 namespace Gabela\Tasks\Controller;
 
+getIncluded("vendor/gabela/gabela-tasks/models/Task.php");
+
 use Gabela\Core\ClassManager;
 use Gabela\Tasks\Model\Task;
 use Monolog\Handler\StreamHandler;
