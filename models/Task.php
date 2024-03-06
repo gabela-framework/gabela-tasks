@@ -9,12 +9,14 @@
 
 namespace Gabela\Tasks\Model;
 
-use mysqli;
+getIncluded("vendor/gabela/gabela-tasks/models/TaskInterface.php");
+
 use Gabela\Core\Database;
-use Monolog\Logger;
-use Gabela\Model\TaskInterface;
+use Gabela\Tasks\Model\TaskInterface;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use mysqli;
 
 class Task implements TaskInterface
 {
@@ -29,12 +31,18 @@ class Task implements TaskInterface
     private $db;
     private $logger;
 
-    public function __construct(mysqli $db = null) {
+    /**
+     * Task class constuctor
+     *
+     * @param mysqli|null $db
+     */
+    public function __construct(mysqli $db = null)
+    {
         $this->db = Database::connect();
         $this->logger = new Logger('task-model');
         $this->logger->pushHandler(new StreamHandler('var/System.log', Logger::DEBUG));
     }
-    
+
     /**
      * Set Id
      *
@@ -70,7 +78,7 @@ class Task implements TaskInterface
     public function setDescription($description)
     {
         //validation for the description if needed
-        $this->description = trim($description); //remove empty spaces 
+        $this->description = trim($description); //remove empty spaces
         $this->description = strip_tags($description); //remove html tags;
         $this->description = stripslashes($description); //remove empty spaces;
         $this->description = $description;
@@ -105,7 +113,7 @@ class Task implements TaskInterface
 
     public function setCompleted($completed)
     {
-        $this->completed = (bool)$completed;
+        $this->completed = (bool) $completed;
     }
 
     public function getCompleted($completed)
@@ -118,7 +126,6 @@ class Task implements TaskInterface
         return $this->completed;
     }
 
-    
     // Getter method for name
     public function getAssignedTo()
     {
@@ -131,7 +138,6 @@ class Task implements TaskInterface
         $this->assign_to = $assign_to;
     }
 
-
     /**
      * Save New Task
      *
@@ -140,7 +146,7 @@ class Task implements TaskInterface
     public function save()
     {
         // Prepare the SQL statement
-        $sql = "INSERT INTO tasks (title, description, assign_to, due_date, user_id, completed) 
+        $sql = "INSERT INTO tasks (title, description, assign_to, due_date, user_id, completed)
         VALUES (?, ?, ?, ?, ?, ?)";
 
         // You should adjust this logic based on your actual application flow.
@@ -162,7 +168,7 @@ class Task implements TaskInterface
 
             $_SESSION['task_saved'] = "Task: ( {$this->title} ) Saved successfully";
 
-            return true; // 
+            return true; //
         } else {
             return false; // Task could not be saved
         }
@@ -176,7 +182,7 @@ class Task implements TaskInterface
     public static function getAllTasks()
     {
         $db = Database::connect();
-        
+
         // Perform a query to fetch tasks from the database
         $sql = "SELECT * FROM tasks";
         $result = $db->query($sql);
@@ -209,7 +215,7 @@ class Task implements TaskInterface
     public function update()
     {
         // Prepare the SQL statement
-        $sql = "UPDATE tasks 
+        $sql = "UPDATE tasks
                 SET title = ?, description = ?, assign_to = ?, due_date = ?, completed = ?
                 WHERE id = ?";
 
@@ -261,7 +267,7 @@ class Task implements TaskInterface
      * Get Tasks by ID
      *
      * @param mixed $id
-     * 
+     *
      */
     public static function getTaskById($id)
     {
