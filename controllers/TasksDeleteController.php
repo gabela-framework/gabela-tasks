@@ -2,7 +2,7 @@
 
 namespace Gabela\Tasks\Controller;
 
-getIncluded("vendor/gabela/gabela-tasks/models/Task.php");
+getIncluded(TASK_MODEL);
 
 use Gabela\Tasks\Model\Task;
 use Monolog\Logger;
@@ -12,10 +12,16 @@ class TasksDeleteController
 {
     private $logger;
 
-    public function __construct($logger = null)
+    /**
+     * @var Task
+     */
+    private Task $taskCollection;
+
+    public function __construct(Task $taskCollection)
     {
         $this->logger = new Logger('delete-task-controller');
         $this->logger->pushHandler(new StreamHandler('var/System.log', Logger::DEBUG));
+        $this->taskCollection = $taskCollection;
     }
 
     public function delete()
@@ -23,9 +29,7 @@ class TasksDeleteController
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
             $taskId = $_GET['id'];
 
-            $task = new Task();
-
-            if ($task->delete($taskId)) {
+            if ($this->taskCollection->delete($taskId)) {
                 return redirect('/tasks?delete_success=1');
             } else {
                 printValue("Failed to delete the task.");

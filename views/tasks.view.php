@@ -163,7 +163,7 @@ $taskClass = $classManager->createInstance(Task::class);
                 } else {
                 ?>
 
-                    <table id="taskTable" class="table table-bordered">
+                    <table id="taskTable" class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>ID</th>

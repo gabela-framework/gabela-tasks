@@ -1,8 +1,8 @@
 {
-    "name": "gabela/gabela-tasks",
+    "name": "gabela/tasks",
     "description": "Gabela task's module",
     "type": "plugin",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "keywords": ["gabela", "tasks", "framework"],
     "license": "MIT",
     "authors": [
@@ -16,8 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Gabela\\Tasks\\Controller\\": "gabela-tasks/controllers/",
-            "Gabela\\Tasks\\Model\\": "gabela-tasks/models/"
+            "Gabela\\Tasks\\": "tasks/"
         }
     }
 }

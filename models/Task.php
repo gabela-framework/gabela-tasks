@@ -9,7 +9,7 @@
 
 namespace Gabela\Tasks\Model;
 
-getIncluded("vendor/gabela/gabela-tasks/models/TaskInterface.php");
+getIncluded(TASK_MODEL_INFERFACE);
 
 use Gabela\Core\Database;
 use Gabela\Tasks\Model\TaskInterface;
@@ -153,7 +153,7 @@ class Task implements TaskInterface
         $userId = null; // Initialize user ID as null
 
         if (isset($_POST["id"])) {
-            $userId = $_POST["id"];
+            //$userId = $_POST["id"];
         }
 
         if (isset($_SESSION['user_id'])) {

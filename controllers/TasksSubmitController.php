@@ -2,19 +2,31 @@
 
 namespace Gabela\Tasks\Controller;
 
-use Gabela\Model\Task;
+getIncluded(TASK_MODEL);
+
+use Gabela\Tasks\Model\Task;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-
 
 class TasksSubmitController
 {
     private $logger;
 
-    public function __construct($logger = null)
+    /**
+     * @var Task
+     */
+    private Task $taskCollection;
+
+    /**
+     * Task Update constructor
+     *
+     * @param Task $taskCollection
+     */
+    public function __construct(Task $taskCollection)
     {
         $this->logger = new Logger('registration-controller');
         $this->logger->pushHandler(new StreamHandler('var/System.log', Logger::DEBUG));
+        $this->taskCollection = $taskCollection;
     }
 
     public function submit()
@@ -27,20 +39,18 @@ class TasksSubmitController
 
         // Check if the form is submitted
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Create an instance of the Task class
-            $task = new Task();
 
             // Use setters to update task properties
-            $task->setId($_POST['id']);
-            $task->setTitle($_POST['title']);
-            $task->setDescription($_POST['description']);
-            $task->setDueDate($_POST['due_date']);
-            $task->setCompleted(isset($_POST['completed']) ? 1 : 0);
-            $task->setAssignedTo($_POST['assign_to']); // Set the assigned user's ID
+            $this->taskCollection->setId($_POST['id']);
+            $this->taskCollection->setTitle($_POST['title']);
+            $this->taskCollection->setDescription($_POST['description']);
+            $this->taskCollection->setDueDate($_POST['due_date']);
+            $this->taskCollection->setCompleted(isset($_POST['completed']) ? 1 : 0);
+            $this->taskCollection->setAssignedTo($_POST['assign_to']); // Set the assigned user's ID
 
             // Update the task in the database
-            if ($task->update()) {
-                $this->logger->info("Task {$task->getTitle()} is updated succesfully ");
+            if ($this->taskCollection->update()) {
+                $this->logger->info("Task {$this->taskCollection->getTitle()} is updated succesfully ");
                 // Redirect back to edit page with success message
                 return redirect("/tasks");
             }
