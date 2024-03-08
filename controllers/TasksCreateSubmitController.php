@@ -23,6 +23,12 @@ class TasksCreateSubmitController
      */
     private Task $taskCollection;
 
+    /**
+     * Create task constructor
+     *
+     * @param Task $taskCollection
+     * @param Session $customerSession
+     */
     public function __construct(
         Task $taskCollection,
         Session $customerSession
