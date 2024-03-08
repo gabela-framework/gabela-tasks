@@ -8,12 +8,12 @@
  */
 
 
-getRequired(USER_MODEL);
+getRequired(USER_MODULE_MODEL);
 getRequired(TASKS_MODEL);
 getRequired(WEATHER_API);
 
 use Gabela\Model\Task;
-use Gabela\Model\User;
+use Gabela\Users\Model\User;
 
 // require 'models/User.php';
 

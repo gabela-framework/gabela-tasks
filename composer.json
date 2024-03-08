@@ -2,7 +2,7 @@
     "name": "gabela/tasks",
     "description": "Gabela task's module",
     "type": "plugin",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "keywords": ["gabela", "tasks", "framework"],
     "license": "MIT",
     "authors": [

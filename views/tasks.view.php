@@ -1,18 +1,19 @@
 <?php
 
-getRequired(USER_MODEL);
-getRequired(WEATHER_API);
-
-use Gabela\Model\Task;
-use Gabela\Model\User;
-use Gabela\Core\ClassManager;
-
 /**
  * @package   Task Management
  * @author    Ntabethemba Ntshoza
  * @date      11-10-2023
  * @copyright Copyright © 2023 VMP By Maneza
  */
+
+getRequired(USER_MODULE_MODEL);
+getRequired(WEATHER_API);
+
+use Gabela\Core\ClassManager;
+use Gabela\Core\Session;
+use Gabela\Model\Task;
+use Gabela\Users\Model\User;
 
 $classManager = new ClassManager();
 
@@ -53,7 +54,10 @@ $taskClass = $classManager->createInstance(Task::class);
                 <div class="container">
                     <div class="row">
                         <div class="span6 info-text">
-                            <strong>Phone:</strong> (111) 333 7777 <span class="separator"></span><strong>Email:</strong> <a href="#">contact@example.com</a>
+                            <strong>Phone:</strong> (111) 333 7777 <span
+                                class="separator"></span><strong>Email:</strong> <a href="#">
+                                <?php printValue(Session::getCurrentUserEmail()) ?>
+                            </a>
                         </div>
                         <div class="span6 text-right">
                             <div class="social-icons">
@@ -107,39 +111,39 @@ $taskClass = $classManager->createInstance(Task::class);
                 }
                 ?>
 
-                <?php if (isset($_SESSION['registration_success'])) : ?>
+                <?php if (isset($_SESSION['registration_success'])): ?>
                     <div class="alert alert-success">
                         <?php echo $_SESSION['registration_success']; ?>
                     </div>
                     <?php unset($_SESSION['registration_success']); // Clear the message after displaying
-                    ?>
+                        ?>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['login_success'])) : ?>
+                <?php if (isset($_SESSION['login_success'])): ?>
                     <div class="alert alert-success">
                         <?php echo $_SESSION['login_success']; ?>
                     </div>
-                    <?php unset($_SESSION['login_success']); // Clear the message after displaying 
-                    ?>
+                    <?php unset($_SESSION['login_success']); // Clear the message after displaying
+                        ?>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['task_saved'])) : ?>
+                <?php if (isset($_SESSION['task_saved'])): ?>
                     <div class="alert alert-success">
                         <?php echo $_SESSION['task_saved']; ?>
                     </div>
-                    <?php unset($_SESSION['task_saved']); // Clear the message after displaying 
-                    ?>
+                    <?php unset($_SESSION['task_saved']); // Clear the message after displaying
+                        ?>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['task_updated'])) : ?>
+                <?php if (isset($_SESSION['task_updated'])): ?>
                     <div class="alert alert-success">
                         <?php echo $_SESSION['task_updated']; ?>
                     </div>
-                    <?php unset($_SESSION['task_updated']); // 
-                    ?>
+                    <?php unset($_SESSION['task_updated']); //
+                        ?>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['task_update_error'])) : ?>
+                <?php if (isset($_SESSION['task_update_error'])): ?>
                     <div class="alert alert-error">
                         <?php echo $_SESSION['task_update_error']; ?>
                     </div>
@@ -161,7 +165,7 @@ $taskClass = $classManager->createInstance(Task::class);
                 if (empty($alltasks)) {
                     // echo '<a  href="createTask.php" class="btn btn-primary">Create a Task</a>';
                 } else {
-                ?>
+                    ?>
 
                     <table id="taskTable" class="table table-striped table-bordered">
                         <thead>
@@ -183,7 +187,7 @@ $taskClass = $classManager->createInstance(Task::class);
                             $tasks = $taskClass->getAllTasks();
                             ?>
                             <!-- Loop through your tasks and display them as table rows -->
-                            <?php foreach ($tasks as $task) : ?>
+                            <?php foreach ($tasks as $task): ?>
                                 <tr>
                                     <td>
                                         <?php printValue($task->getId()); ?>
@@ -206,17 +210,20 @@ $taskClass = $classManager->createInstance(Task::class);
 
                                     <td>
                                         <!-- Display user ID as a clickable link -->
-                                        <a href="<?= EXTENTION_PATH ?>/users-profile?user_id=<?php printValue($task->getUserId()); ?>">
+                                        <a
+                                            href="<?= EXTENTION_PATH ?>/users-profile?user_id=<?php printValue($task->getUserId()); ?>">
                                             <?php printValue($task->getUserId()); ?>
                                         </a>
                                     </td>
                                     <td>
                                         <!-- Edit button -->
-                                        <button onclick="editTask(<?php printValue($task->getId()); ?>)" class="btn btn-primary btn-sm">Edit</button>
+                                        <button onclick="editTask(<?php printValue($task->getId()); ?>)"
+                                            class="btn btn-primary btn-sm">Edit</button>
                                     </td>
                                     <td>
                                         <!-- Delete button -->
-                                        <button onclick="deleteTask(<?php printValue($task->getId()); ?>)" class="btn btn-danger btn-sm">Delete</button>
+                                        <button onclick="deleteTask(<?php printValue($task->getId()); ?>)"
+                                            class="btn btn-danger btn-sm">Delete</button>
                                     </td>
 
                                     <!-- JavaScript function to confirm and delete the task -->
@@ -279,7 +286,7 @@ $taskClass = $classManager->createInstance(Task::class);
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                <?php
+                    <?php
                 } // End of else block
                 printValue('<a  href=" ' . BASE_URL . 'tasks-create" class="btn btn-primary">Add Task</a>');
                 ?>

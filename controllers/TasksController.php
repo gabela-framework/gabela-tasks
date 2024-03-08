@@ -10,5 +10,15 @@ class TasksController extends AbstractController
     {
         $this->getTemplate(TASKS_HOMEPAGE);
     }
+
+    public function create()
+    {
+       $this->getTemplate(TASKS_CREATEPAGE);
+    }
+
+    public function edit()
+    {
+        $this->getTemplate(TASKS_UPDATEPAGE);
+    }
 }
 
