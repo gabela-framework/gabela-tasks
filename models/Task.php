@@ -11,14 +11,16 @@ namespace Gabela\Tasks\Model;
 
 getIncluded(TASK_MODEL_INFERFACE);
 
+use PDO;
+use mysqli;
+use Monolog\Logger;
+use Gabela\Core\Model;
 use Gabela\Core\Database;
-use Gabela\Tasks\Model\TaskInterface;
 use InvalidArgumentException;
 use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use mysqli;
+use Gabela\Tasks\Model\TaskInterface;
 
-class Task implements TaskInterface
+class Task extends Model
 {
     private $id;
     private $title;
@@ -28,15 +30,20 @@ class Task implements TaskInterface
     private $completed;
     private $assign_to;
 
-    private $db;
+
+    protected $db;
     private $logger;
+    protected $table = 'tasks';
+    protected $primaryKey = 'task_id';
 
     /**
-     * Task class constuctor
+     * Task class constructor
      *
-     * @param mysqli|null $db
+     * Initializes the Task model with a database connection and a logger.
+     *
+     * @param PDO|null $db Optional PDO database connection. If not provided, a new connection will be created.
      */
-    public function __construct(mysqli $db = null)
+    public function __construct(PDO $db = null)
     {
         $this->db = Database::connect();
         $this->logger = new Logger('task-model');
@@ -138,130 +145,70 @@ class Task implements TaskInterface
         $this->assign_to = $assign_to;
     }
 
+
     /**
      * Save New Task
      *
-     * @return bool
+     * @return mixed
      */
     public function save()
     {
-        // Prepare the SQL statement
-        $sql = "INSERT INTO tasks (title, description, assign_to, due_date, user_id, completed)
-        VALUES (?, ?, ?, ?, ?, ?)";
-
         // You should adjust this logic based on your actual application flow.
-        $userId = null; // Initialize user ID as null
+        $userId = null;
 
         if (isset($_POST["id"])) {
-            //$userId = $_POST["id"];
+            $userId = $_POST["user_id"];
         }
 
         if (isset($_SESSION['user_id'])) {
             $userId = $_SESSION['user_id'];
         }
 
-        // Bind parameters and execute the query
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("ssssii", $this->title, $this->description, $this->assign_to, $this->dueDate, $userId, $this->completed);
+        $data = [
+            'title' => $this->title,
+            'description' => $this->description,
+            'user_id' => $userId,
+            'assign_to' => $this->assign_to,
+            'completed' => $this->completed,
+            'due_date' => $this->dueDate,
+            'status_id' => 1,
+        ];
 
-        if ($stmt->execute()) {
+        if ($this->id) {
 
             $_SESSION['task_saved'] = "Task: ( {$this->title} ) Saved successfully";
 
-            return true; //
+            return $this->update($data, $this->id);
         } else {
-            return false; // Task could not be saved
+            return $this->insert($data);
         }
     }
-
+    
     /**
-     * Get All Tasks
+     * Retrieve all tasks from the database.
      *
-     * @return array
-     */
-    public static function getAllTasks()
-    {
-        $db = Database::connect();
-
-        // Perform a query to fetch tasks from the database
-        $sql = "SELECT * FROM tasks";
-        $result = $db->query($sql);
-
-        $tasks = [];
-
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $task = new Task();
-                // $user = new User();
-                $task->setId($row['id']);
-                $task->setTitle($row['title']);
-                $task->setDescription($row['description']);
-                $task->setDueDate($row['due_date']);
-                $task->setAssignedTo($row['assign_to']);
-                $task->setUserId($row['user_id']);
-                $task->setCompleted($row['completed']);
-                $tasks[] = $task;
-            }
-        }
-
-        return $tasks;
-    }
-
-    /**
-     * Update Tasks
+     * This method fetches all task records from the database and returns them
+     * as an array of task objects. It does not take any parameters and will
+     * return an empty array if no tasks are found.
      *
-     * @return void
+     * @return array An array of task objects.
      */
-    public function update()
-    {
-        // Prepare the SQL statement
-        $sql = "UPDATE tasks
-                SET title = ?, description = ?, assign_to = ?, due_date = ?, completed = ?
-                WHERE id = ?";
+    public function getAll()
+{
+    $tasks = $this->findAll();
+    $taskList = [];
 
-        // Bind parameters and execute the query
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param(
-            "ssssii",
-            $this->title,
-            $this->description,
-            $this->assign_to,
-            $this->dueDate,
-            $this->completed,
-            $this->id
-        );
-
-        if ($stmt->execute()) {
-            $_SESSION['task_updated'] = "Task: ( {$this->title} ) Updated successfully";
-            return true; // Task updated successfully
-        } else {
-            $_SESSION['task_update_error'] = "Task not update, check your function and try again";
-            return false; // Task could not be updated
+    if (!empty($tasks)) {
+        // Loop through the tasks and create Task objects for each record
+        foreach ($tasks as $row) {
+            $task = new self();
+            $task->getData($row);
+            $taskList[] = $task;
         }
     }
 
-    /**
-     * Delete Tasks
-     *
-     * @param [type] $id
-     * @return boolean
-     */
-    public function delete($id)
-    {
-        // Prepare the SQL statement
-        $sql = "DELETE FROM tasks WHERE id = ?";
-
-        // Bind parameters and execute the query
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $id);
-
-        if ($stmt->execute()) {
-            $this->logger->info('Task is deleted successfully ');
-            return true;
-        } else {
-            return false;
-        }
-    }
+    return $taskList;
+}
 
     /**
      * Get Tasks by ID
@@ -269,33 +216,39 @@ class Task implements TaskInterface
      * @param mixed $id
      *
      */
-    public static function getTaskById($id)
+    public static function getById($id)
     {
-        $db = Database::connect();
-        // Prepare the SQL statement
-        $sql = "SELECT * FROM tasks WHERE id = ?";
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param("i", $id);
+        $task = new self();
+        $taskData = $task->find($id);
 
-        if ($stmt->execute()) {
-            // Fetch the result as an associative array
-            $result = $stmt->get_result();
-            if ($result->num_rows === 1) {
-                $taskData = $result->fetch_assoc();
-                $task = new Task();
-                $task->setId($taskData['id']);
-                $task->setTitle($taskData['title']);
-                $task->setDescription($taskData['description']);
-                $task->setAssignedTo($taskData['assign_to']);
-                $task->setDueDate($taskData['due_date']);
-                $task->setUserId($taskData['user_id']);
-                $task->setCompleted($taskData['completed']);
-                return $task;
-            } else {
-                return null; // Task with the given ID not found
-            }
-        } else {
-            return null; // Error in executing the query
+        if ($taskData) {
+            $task->getData($taskData);
         }
+
+        return $task;
+    }
+
+    /**
+     * Populates the Task object with data from an associative array.
+     *
+     * @param array $data An associative array containing task data with the following keys:
+     *                    - 'task_id' (int): The ID of the task.
+     *                    - 'title' (string): The title of the task.
+     *                    - 'description' (string): A description of the task.
+     *                    - 'due_date' (string): The due date of the task.
+     *                    - 'assign_to' (int): The ID of the user to whom the task is assigned.
+     *                    - 'user_id' (int): The ID of the user who created the task.
+     *                    - 'completed' (bool): The completion status of the task.
+     *
+     * @return void
+     */
+    public function getData(&$data) {
+        $this->setId($data['task_id']);
+        $this->setTitle($data['title']);
+        $this->setDescription($data['description']);
+        $this->setDueDate($data['due_date']);
+        $this->setAssignedTo($data['assign_to']);
+        $this->setUserId($data['user_id']);
+        $this->setCompleted($data['completed']);
     }
 }

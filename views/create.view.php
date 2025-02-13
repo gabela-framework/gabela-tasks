@@ -9,7 +9,7 @@
 
 
 getRequired(USER_MODULE_MODEL);
-getRequired(TASKS_MODEL);
+// getRequired(TASKS_MODEL);
 getRequired(WEATHER_API);
 
 use Gabela\Model\Task;
@@ -159,7 +159,7 @@ $allUsers = $users->getAllUsers();
                                 $userNames = $users->getUsersFromDatabase();
 
                                 foreach ($userNames as $userName) {
-                                    echo '<option value="' . $userName['name'] . '">' . $userName['name'] . '</option>';
+                                    echo '<option value="' . $userName['id'] . '">' . $userName['name'] . '</option>';
                                 }
                                 ?>
                             </select>

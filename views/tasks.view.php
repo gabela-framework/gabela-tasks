@@ -5,39 +5,23 @@
  * @author    Ntabethemba Ntshoza
  * @date      11-10-2023
  * @copyright Copyright © 2023 VMP By Maneza
+ *  
  */
+getIncluded(WEATHER_API);
 
-getRequired(USER_MODULE_MODEL);
-getRequired(WEATHER_API);
-
-use Gabela\Core\ClassManager;
 use Gabela\Core\Session;
-use Gabela\Model\Task;
+use Gabela\Tasks\Model\Task;
 use Gabela\Users\Model\User;
 
-$classManager = new ClassManager();
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    redirect('/');
-    // Terminate script execution
-}
-
-/** @var User $users */
-// $users = $classManager->createInstance(User::class);
-
-// $config = getIncluded(WEB_CONFIGS);
-
-// if (isset($config['weather']['apikey']) && is_array($config['weather']['apikey'])) {
-//     $apiKey = $config['weather']['apikey'][0];
-// } else {
-//     $apiKey = $config['weather']['apikey'];
-// }
-
-// $city = $users->getWeatherCity();
-
-/** @var Task $taskClass */
-$taskClass = $classManager->createInstance(Task::class);
+/**
+ * Controller variables
+ * 
+ * @var Task $taskModel
+ * @var User $userModel
+ * @var array $sessionMessages
+ * @var string $tableHtml
+ * @var string $formHtml
+ */
 ?>
 
 <!DOCTYPE html>
@@ -96,199 +80,133 @@ $taskClass = $classManager->createInstance(Task::class);
                 </div>
                 <hr class="blank">
 
-                <?php
-                if (isset($_SESSION['registration_error'])) {
-                    // Use SweetAlert to display the error message
-                    echo '<script>
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "' . $_SESSION['registration_error'] . '"
-                            });
-                        </script>';
-                    // Clear the session variable
-                    unset($_SESSION['registration_error']);
-                }
-                ?>
 
-                <?php if (isset($_SESSION['registration_success'])): ?>
-                    <div class="alert alert-success">
-                        <?php echo $_SESSION['registration_success']; ?>
+                <?php foreach ($sessionMessages as $type => $message): ?>
+                    <div class="alert alert-<?= strpos($type, 'error') !== false ? 'danger' : 'success'; ?>">
+                        <?= $message; ?>
                     </div>
-                    <?php unset($_SESSION['registration_success']); // Clear the message after displaying
-                        ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['login_success'])): ?>
-                    <div class="alert alert-success">
-                        <?php echo $_SESSION['login_success']; ?>
-                    </div>
-                    <?php unset($_SESSION['login_success']); // Clear the message after displaying
-                        ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['task_saved'])): ?>
-                    <div class="alert alert-success">
-                        <?php echo $_SESSION['task_saved']; ?>
-                    </div>
-                    <?php unset($_SESSION['task_saved']); // Clear the message after displaying
-                        ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['task_updated'])): ?>
-                    <div class="alert alert-success">
-                        <?php echo $_SESSION['task_updated']; ?>
-                    </div>
-                    <?php unset($_SESSION['task_updated']); //
-                        ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['task_update_error'])): ?>
-                    <div class="alert alert-error">
-                        <?php echo $_SESSION['task_update_error']; ?>
-                    </div>
-                    <?php unset($_SESSION['task_update_error']);
-                    ?>
-                <?php endif; ?>
+                <?php endforeach; ?>
 
 
                 <?php
                 // Check if the delete_success query parameter is set
                 if (isset($_GET['delete_success']) && $_GET['delete_success'] == 1) {
-                    echo '<div class="alert alert-success">Task ' . $taskClass->getId() . ' deleted successfully!</div>';
+                    echo '<div class="alert alert-success">Task ' . $taskModel->getId() . ' deleted successfully!</div>';
                 }
                 ?>
 
                 <?php
-                $alltasks = $taskClass->getAllTasks();
+
                 // Check if there are no tasks, and display the "Create Task" button if true
-                if (empty($alltasks)) {
-                    // echo '<a  href="createTask.php" class="btn btn-primary">Create a Task</a>';
-                } else {
-                    ?>
+                if (empty($tableHtml)): 
+                ?>
+                           <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="taskModalLabel">Add Task2</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Rendered Form -->
+                                        <?= $formHtml; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php else: ?>
 
-                    <table id="taskTable" class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th data-orderable="false">Description</th>
-                                <th>Assigned to</th>
-                                <th>Due Date</th>
-                                <th>Completed</th>
-                                <th>Log by</th>
-                                <th data-orderable="false">Edit</th>
-                                <th data-orderable="false">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            // var_dump($_SESSION);
-                            $tasks = $taskClass->getAllTasks();
-                            ?>
-                            <!-- Loop through your tasks and display them as table rows -->
-                            <?php foreach ($tasks as $task): ?>
-                                <tr>
-                                    <td>
-                                        <?php printValue($task->getId()); ?>
-                                    </td>
-                                    <td>
-                                        <?php printValue($task->getTitle()); ?>
-                                    </td>
-                                    <td>
-                                        <?php printValue($task->getDescription()); ?>
-                                    </td>
-                                    <td>
-                                        <?php printValue($task->getAssignedTo()); ?>
-                                    </td>
-                                    <td>
-                                        <?php printValue($task->getDueDate()); ?>
-                                    </td>
-                                    <td>
-                                        <?php printValue($task->isCompleted() ? 'Yes' : 'No'); ?>
-                                    </td>
+                    <div class="container">
 
-                                    <td>
-                                        <!-- Display user ID as a clickable link -->
-                                        <a
-                                            href="<?= EXTENTION_PATH ?>/users-profile?user_id=<?php printValue($task->getUserId()); ?>">
-                                            <?php printValue($task->getUserId()); ?>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <!-- Edit button -->
-                                        <button onclick="editTask(<?php printValue($task->getId()); ?>)"
-                                            class="btn btn-primary btn-sm">Edit</button>
-                                    </td>
-                                    <td>
-                                        <!-- Delete button -->
-                                        <button onclick="deleteTask(<?php printValue($task->getId()); ?>)"
-                                            class="btn btn-danger btn-sm">Delete</button>
-                                    </td>
+                        <div class="text-start" style="float: right;">
+                            <?php printValue('<a href="#" class="btn btn-primary" data-toggle="modal" data-target="#taskModal">Add Task</a>'); ?>
+                        </div>
+                        <h1>Tasks List</h1>
 
-                                    <!-- JavaScript function to confirm and delete the task -->
-                                    <script>
-                                        function deleteTask(userId) {
-                                            Swal.fire({
-                                                title: 'Are you sure?',
-                                                text: 'You won\'t be able to revert this!',
-                                                icon: 'warning',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: 'Yes, delete it!'
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    // If user clicks "Yes," redirect to delete URL
-                                                    window.location.href = "<?= EXTENTION_PATH ?>/task-delete?id=" + userId;
-                                                }
-                                            });
-                                        }
+                        <!-- Render the table -->
+                        <?php if (!empty($tableHtml)): ?>
+                            <?= $tableHtml; ?>
+                        <?php else: ?>
+                            <p>No tasks available.</p>
+                        <?php endif; ?>
 
-                                        function logoutNow() {
-                                            Swal.fire({
-                                                title: 'Are you sure?',
-                                                text: 'You want to logout?',
-                                                icon: 'warning',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: 'Yes, logout!'
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    // If user clicks "Yes," redirect to delete URL
-                                                    window.location.href = "<?= EXTENTION_PATH ?>/logout";
-                                                }
-                                            });
-                                        }
+                        <!-- Task form -->
+                        <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="taskModalLabel">Add Task2</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Rendered Form -->
+                                        <?= $formHtml; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
 
+                    <!-- JavaScript function to confirm and delete the task -->
+                    <script>
+                        function deleteTask(userId) {
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'You won\'t be able to revert this!',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // If user clicks "Yes," redirect to delete URL
+                                    window.location.href = "<?= EXTENTION_PATH ?>/task-delete?id=" + userId;
+                                }
+                            });
+                        }
 
+                        function logoutNow() {
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'You want to logout?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, logout!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // If user clicks "Yes," redirect to delete URL
+                                    window.location.href = "<?= EXTENTION_PATH ?>/logout";
+                                }
+                            });
+                        }
 
-                                        function editTask(userId) {
-                                            Swal.fire({
-                                                title: 'Are you sure?',
-                                                text: 'You are about to edit this task.',
-                                                icon: 'question',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#3085d6',
-                                                cancelButtonColor: '#d33',
-                                                confirmButtonText: 'Yes, edit it!'
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    // If user clicks "Yes," redirect to edit URL
-                                                    window.location.href = "<?= EXTENTION_PATH ?>/task-edit?id=" + userId;
-                                                }
-                                            });
-                                        }
-                                    </script>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php
-                } // End of else block
-                printValue('<a  href=" ' . BASE_URL . 'tasks-create" class="btn btn-primary">Add Task</a>');
+                        function editTask(userId) {
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'You are about to edit this task.',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, edit it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // If user clicks "Yes," redirect to edit URL
+                                    window.location.href = "<?= EXTENTION_PATH ?>/task-edit?id=" + userId;
+                                }
+                            });
+                        }
+                    </script>
+                <?php
+                endif // End of else block
                 ?>
 
                 <div class="map">

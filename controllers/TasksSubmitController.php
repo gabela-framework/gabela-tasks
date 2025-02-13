@@ -49,7 +49,7 @@ class TasksSubmitController
             $this->taskCollection->setAssignedTo($_POST['assign_to']); // Set the assigned user's ID
 
             // Update the task in the database
-            if ($this->taskCollection->update()) {
+            if ($this->taskCollection->save()) {
                 $this->logger->info("Task {$this->taskCollection->getTitle()} is updated succesfully ");
                 // Redirect back to edit page with success message
                 return redirect("/tasks");
