@@ -7,18 +7,17 @@
  * @copyright Copyright © 2023 VMP By Maneza
  */
 
- getRequired(USER_MODULE_MODEL);
- getRequired(TASKS_MODEL);
+//  getRequired(TASKS_MODEL);
  getRequired(WEATHER_API);
  
-use Gabela\Model\Task;
+use Gabela\Tasks\Model\Task;
 use Gabela\Users\Model\User;
 
 // require 'models/User.php';
 
 // Check if the user is logged in
 $users = new User();
-$task = new Task();
+$tasks = new Task();
 
 
 
@@ -27,7 +26,7 @@ if (isset($_GET['id'])) {
     $taskId = $_GET['id'];
 
     // Create an instance of the Task class and fetch the task by ID
-    $task = Task::getTaskById($taskId);
+    $task = $tasks->getById($taskId);
 
     $dueDate = date('Y-m-d', strtotime($task->getDueDate()));
 
